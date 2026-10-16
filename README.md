@@ -16,18 +16,18 @@
 
 ## 📌 Executive Summary & Programme Context
 
-In Corporate & Investment Banking (CIB) and retail lending portfolios, evaluating creditworthiness is foundational to balance-sheet health, risk-weighted asset (RWA) allocation, and regulatory compliance. Under international banking standards (**Basel III / IFRS 9**), risk teams must quantify the **Probability of Default (PD)** to compute Expected Loss ($EL$):
+In Corporate & Investment Banking (CIB) and retail lending portfolios, evaluating counterparty creditworthiness is foundational to balance-sheet resilience, risk-weighted asset (RWA) optimization, and regulatory capital compliance. Under international banking frameworks (**Basel III / IFRS 9**), quantitative risk teams model the **Probability of Default (PD)** to compute Expected Loss ($EL$):
 
 $$\mathbb{E}[L] = PD \times LGD \times EAD$$
 
 Where:
-* $PD$ = Probability of Default over a 12-month or lifetime horizon
-* $LGD$ = Loss Given Default (percentage of exposure lost post-recovery)
-* $EAD$ = Exposure at Default (total gross exposure outstanding)
+* $PD$ = Probability of Default over a 12-month or lifetime rating horizon
+* $LGD$ = Loss Given Default (percentage of total exposure lost post-recovery)
+* $EAD$ = Exposure at Default (gross exposure facility value at point of default)
 
-This repository contains an end-to-end, statistically validated credit scoring and loan underwriting system developed to replicate the quantitative methodologies practiced within the **Standard Chartered Modelling and Analytics Centre (SCMAC)** — specifically for **Corporate, Institutional & Sovereign Lending Risk, Corporate Treasury, and Model Monitoring**.
+This repository contains an end-to-end, statistically validated credit scoring and loan underwriting system developed to replicate the quantitative methodologies practiced within the **Standard Chartered Modelling and Analytics Centre (SCMAC)** — specifically for **Corporate, Institutional & Sovereign Lending Risk, Corporate Treasury, and Model Performance Monitoring**.
 
-The system ingests structured financial and socio-demographic indicators, applies variance-stabilizing log transforms, mitigates class imbalance through cost-sensitive optimization, benchmarks across multiple statistical classifiers using **Stratified 5-Fold Cross-Validation**, and deploys a calibrated **Extreme Gradient Boosting (XGBoost)** decision engine wrapped in a real-time Streamlit interface.
+The system ingests structured financial and socio-demographic indicators, applies variance-stabilizing log transforms, mitigates severe class imbalance through cost-sensitive optimization, benchmarks multiple statistical classifiers using **Stratified 5-Fold Cross-Validation**, and deploys a calibrated **Extreme Gradient Boosting (XGBoost)** decision engine wrapped in a real-time Streamlit interface.
 
 ---
 
@@ -38,9 +38,9 @@ The system ingests structured financial and socio-demographic indicators, applie
 | **Risk & Regulatory Model Development** | Modeled binary credit classification ($Y \in \{0, 1\}$) with probability calibration $P(Y=1 \mid \mathbf{X})$ under strict regulatory scorecard guidelines. | [`data.ipynb`](file:///c:/Users/user/Desktop/LoanPredictive/Loan-Predictive-System/data.ipynb) (Cells 62–88) |
 | **Statistical Analysis & Problem Solving** | Distribution skewness diagnostics, heteroscedasticity dampening via $\ln(1+x)$ transforms, and bivariate correlation shift analysis. | [`data.ipynb`](file:///c:/Users/user/Desktop/LoanPredictive/Loan-Predictive-System/data.ipynb) (Cells 11–59) |
 | **Model Performance & Health Monitoring** | Implemented Population Stability Index (PSI), Characteristic Stability Index (CSI), ROC-AUC, and Confusion Matrix diagnostics. | Performance benchmark tables & evaluation suite |
-| **Class Imbalance & Asymmetric Risk Mitigation** | Solved a 68.6% : 31.4% credit approval skew using **SMOTETomek** resampling and calibrated cost-sensitive weighting ($\text{scale\_pos\_weight} = 0.46$). | [`data.ipynb`](file:///c:/Users/user/Desktop/LoanPredictive/Loan-Predictive-System/data.ipynb) (Cell 66, 82) |
+| **Class Imbalance & Asymmetric Risk Mitigation** | Solved a 68.6% : 31.4% credit approval skew using **SMOTETomek** resampling and calibrated cost-sensitive weighting (`scale_pos_weight = 0.46`). | [`data.ipynb`](file:///c:/Users/user/Desktop/LoanPredictive/Loan-Predictive-System/data.ipynb) (Cell 66, 82) |
 | **Treasury & Credit Analyst Decision Support** | Real-time decision portal providing point-in-time default probability scores to inform underwriting and capital reserving. | [`app.py`](file:///c:/Users/user/Desktop/LoanPredictive/Loan-Predictive-System/app.py) |
-| **Rigorous Project & Validation Documentation** | Publication-grade reporting conforming to Federal Reserve SR 11-7 and Basel Committee standards. | [`README.md`](file:///c:/Users/user/Desktop/LoanPredictive/README.md) |
+| **Rigorous Project & Validation Documentation** | Publication-grade reporting conforming to Federal Reserve SR 11-7 and Basel Committee standards. | [`README.md`](file:///c:/Users/user/Desktop/LoanPredictive/Loan-Predictive-System/README.md) |
 
 ---
 
@@ -55,7 +55,7 @@ flowchart TD
 
     subgraph FeatureEng ["2. Statistical Feature Engineering"]
         C --> D["Right-Skew Diagnostics (Income & Loan Amount)"]
-        D --> E["Logarithmic Transformations (log1p)"]
+        D --> E["Logarithmic Transformations: ln(1 + x)"]
         E --> F["Derived Financial Signals: Has_Coapplicant, Tenor in Years"]
         F --> G["Multicollinearity & Correlation Analysis"]
     end
@@ -91,10 +91,10 @@ The observational universe comprises $N = 614$ historical applicant records acro
 | `Self_Employed` | Binary Categorical | `Yes` (1), `No` (0) | Income volatility & business risk proxy |
 | `Credit_History` | Binary Categorical | `1.0` (Prime / Good), `0.0` (Subprime / Default) | Historical credit compliance; primary risk driver |
 | `Property_Area` | Nominal Categorical | `Urban` (2), `Semiurban` (1), `Rural` (0) | Collateral liquidity and marketability |
-| `ApplicantIncome` | Continuous Metric | $\$150 - \$81,000$ | Primary borrower debt service capability |
-| `CoapplicantIncome` | Continuous Metric | $\$0 - \$41,667$ | Supplementary secondary cash flow |
-| `LoanAmount` | Continuous Metric | $\$9 - \$700$ (in Thousands) | Requested principal facility size |
-| `Loan_Amount_Term` | Discrete Metric | $12 - 480$ months | Facility duration; normalized to annual tenor |
+| `ApplicantIncome` | Continuous Metric | USD 150 to USD 81,000 | Primary borrower debt service capability |
+| `CoapplicantIncome` | Continuous Metric | USD 0 to USD 41,667 | Supplementary secondary cash flow |
+| `LoanAmount` | Continuous Metric | USD 9,000 to USD 700,000 | Requested principal facility size |
+| `Loan_Amount_Term` | Discrete Metric | 12 to 480 months | Facility duration; normalized to annual tenor |
 | **`Loan_Status` (Target)** | **Binary Indicator** | **`Y` (1: Approved), `N` (0: Rejected)** | **Underwriting classification outcome** |
 
 ---
@@ -103,11 +103,11 @@ The observational universe comprises $N = 614$ historical applicant records acro
 
 In raw empirical distributions, financial features (`ApplicantIncome`, `CoapplicantIncome`, and `LoanAmount`) display severe positive skewness with long right tails, violating ordinary linear model normality assumptions and causing tree split distortions:
 
-$$\gamma_1 = \frac{\frac{1}{n}\sum_{i=1}^{n}(x_i - \bar{x})^3}{\left(\frac{1}{n}\sum_{i=1}^{n}(x_i - \bar{x})^2\right)^{3/2}} \gg 1.0$$
+$$\gamma_1 = \frac{\frac{1}{n}\sum_{i=1}^{n}(x_i - \bar{x})^3}{\left[\frac{1}{n}\sum_{i=1}^{n}(x_i - \bar{x})^2\right]^{3/2}} \gg 1.0$$
 
 To damp heteroscedasticity, compress extreme leverage points, and stabilize the variance, an analytical natural log transformation was applied:
 
-$$\tilde{x} = \ln(1 + x) = \text{log1p}(x)$$
+$$\tilde{x} = \ln(1 + x)$$
 
 ```python
 # Variance Stabilization Pipeline
@@ -138,19 +138,19 @@ In credit underwriting, dataset distribution is intrinsically unbalanced. In the
 * **Class 0 (Rejected / Default Risk):** 154 applicants (31.36%)
 
 In commercial and institutional lending, misclassification costs are profoundly **asymmetric**:
-* **Type I Error (False Positive / Approving a Defaulter):** Generates severe financial Loss Given Default ($LGD \approx 40\% - 100\%$).
-* **Type II Error (False Negative / Rejecting a Viable Borrower):** Results merely in opportunity cost (forgone margin interest).
+* **Type I Error (False Positive / Approving a Defaulter):** Generates severe balance sheet loss, with Loss Given Default typically between 40% and 100% of Exposure at Default.
+* **Type II Error (False Negative / Rejecting a Viable Borrower):** Results merely in opportunity cost (forgone net interest margin).
 
 ### 2. Dual-Strategy Imbalance Mitigation
 Two advanced approaches were empirically evaluated:
 1. **Hybrid Synthetic Resampling (`SMOTETomek`):** Combines synthetic minority oversampling (SMOTE) with Tomek links removal to sharpen decision boundaries.
 2. **Cost-Sensitive Loss Reweighting:** Directly penalizes minority class misclassification inside the gradient-boosted objective via the negative-to-positive ratio:
 
-$$\text{scale\_pos\_weight} = \frac{N_{\text{negative}}}{N_{\text{positive}}} = \frac{154}{337} \approx 0.457 \approx 0.46$$
+$$w_{\text{pos}} = \frac{N_{\text{negative}}}{N_{\text{positive}}} = \frac{154}{337} \approx 0.46$$
 
 The modified binary cross-entropy loss function optimized by the gradient booster:
 
-$$\mathcal{L}(\theta) = -\sum_{i=1}^{n} \left[ w \cdot y_i \ln(\hat{p}_i) + (1 - y_i) \ln(1 - \hat{p}_i) \right]$$
+$$\mathcal{L}(\theta) = -\sum_{i=1}^{n} \left[ w_{\text{pos}} \cdot y_i \ln(\hat{p}_i) + (1 - y_i) \ln(1 - \hat{p}_i) \right]$$
 
 This formulation directly forces the model to heavily prioritize recall on the high-risk class ($Y=0$).
 
@@ -210,16 +210,22 @@ graph LR
     A --> C["Characteristic Stability Index (CSI)"]
     A --> D["Discrimination Drift (AUROC / KS)"]
     B --> E{"PSI Threshold Check"}
-    E -- "< 0.10" --> F["Green: Model Healthy"]
-    E -- "0.10 - 0.25" --> G["Amber: Marginal Shift / Monitor"]
-    E -- "> 0.25" --> H["Red: Significant Drift / Retrain Pipeline"]
+    E -- "PSI < 0.10" --> F["Green: Model Healthy"]
+    E -- "0.10 <= PSI < 0.25" --> G["Amber: Marginal Shift / Monitor"]
+    E -- "PSI >= 0.25" --> H["Red: Significant Drift / Retrain Pipeline"]
 ```
 
 ### 1. Population Stability Index (PSI)
 To ensure the scoring population has not drifted relative to the baseline training population:
 
-$$PSI = \sum_{b=1}^{B} \left( \% \text{ Actual}_b - \% \text{ Expected}_b \right) \times \ln\left( \frac{\% \text{ Actual}_b}{\% \text{ Expected}_b} \right)$$
+$$PSI = \sum_{b=1}^{B} (P_b - Q_b) \times \ln\left( \frac{P_b}{Q_b} \right)$$
 
+Where:
+* $P_b$ = Actual empirical proportion in score bin $b$
+* $Q_b$ = Expected (baseline) proportion in score bin $b$
+* $B$ = Number of score bins / rating grades
+
+**Governance Thresholds:**
 * $PSI < 0.10$: **No shift**; model remains calibrated.
 * $0.10 \le PSI < 0.25$: **Moderate shift**; requires increased monitoring frequency.
 * $PSI \ge 0.25$: **Significant population shift**; model retraining and governance review triggered.
@@ -242,7 +248,7 @@ The system is deployed as an interactive credit decisioning portal built in Pyth
 * **Interactive Dynamic Inputs:** Captures all socio-demographic, property, credit history, and financial metrics.
 * **Schema Verification Pipeline:** Validates input dataframe columns dynamically against the serialized schema artifact ([`loan_prediction_dataset.pkl`](file:///c:/Users/user/Desktop/LoanPredictive/Loan-Predictive-System/loan_prediction_dataset.pkl)).
 * **Real-time Feature Transformation:** Applies `log1p` transformations and feature derivations on the fly.
-* **Probabilistic Scoring:** Computes calibrated decision probabilities ($P(\text{Approval})$) and renders unambiguous underwriting verdicts (`Loan Approved` vs `Loan Not Approved`).
+* **Probabilistic Scoring:** Computes calibrated decision probabilities ($P(Y=1 \mid \mathbf{X})$) and renders unambiguous underwriting verdicts (`Loan Approved` vs `Loan Not Approved`).
 
 ---
 
